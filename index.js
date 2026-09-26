@@ -4,30 +4,33 @@
 import SudokuGenerate, { SudokuSolve } from "./modules/sudoku.js";
 import generarinformejson, {
   GenerarInformeCSVJson,
-} from "./modules/database.js";
-import { sendDynamicEmail } from "./modules/EmailManager.js";
-//
-import express from "express";
-import cors from "cors";
-import fs from "fs";
-import TicTacToeTest from "./modules/tictactoe.cjs";
-import bodyParser from "body-parser";
-import sql from "mssql";
-import { createRequire } from 'module';
+}                                      from "./modules/database.js";
+import { sendDynamicEmail }            from "./modules/EmailManager.js";
+import TicTacToeTest                   from "./modules/tictactoe.cjs";
+import express                         from "express";
+import cors                            from "cors";
+import bodyParser                      from "body-parser";
+import sql                             from "mssql";
+import { createRequire }               from 'module';
+import swaggerUi                       from 'swagger-ui-express';
+import swaggerJsdoc                    from "swagger-jsdoc";
+import { readFileSync }                from 'fs';
+
+//import packageJson                     from "./package.json";
+const packageJson                      = JSON.parse(readFileSync(new URL('./package.json', import.meta.url)));
 // If you need require() capability in an ES Module, you can create it like this:
-const require = createRequire(import.meta.url);
-const packageJson = require('./package.json');
+const require                          = createRequire(import.meta.url);
 //---------------------------------------------------
 // VARIABLE DECLARATION
 //---------------------------------------------------
 //
-let appName = "[WEB API / NODE.JS - DEMO]";
+let appName    = "[WEB API / NODE.JS - DEMO]";
 //
 let appVersion = "1.0.0.3";
 //
 let portNumber = 4000;
 //
-const app = express();
+const app      = express();
 //
 // SQL Server configuration
 const config = {
@@ -52,6 +55,35 @@ app.use(
     credentials: true,
   })
 );
+
+//---------------------------------------------------
+// SWAGGER SETUP
+//---------------------------------------------------
+
+// 1. Configure Swagger definition options
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Node.js DB & Utility API',
+      version: packageJson.version || '1.0.0',
+      description: 'API documentation generated via reflection on JSDoc comments',
+    },
+    servers: [
+      {
+        url: 'https://ominous-space-robot-p97445gppvjfjwp-4000.app.github.dev',
+        description: 'Local development server',
+      },
+    ],
+  },
+  // Points to files where Swagger JSDoc annotations are written (this file)
+  apis: ['./index.js'], 
+};
+
+const swaggerSpecs = swaggerJsdoc(swaggerOptions);
+
+// 2. Mount the Swagger UI explorer route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 //---------------------------------------------------
 // MIDDLEWARE: HTTP Request Logger for Render & Hostings
@@ -134,6 +166,27 @@ app.get('/getNodeVersion', (req, res) => {
     res.send(process.version);
 });
 
+/**
+ * @openapi
+ * /getNodeWebServerVersion:
+ *   get:
+ *     summary: Get the server type and current version
+ *     description: Returns metadata reflecting the active express server and version from package.json
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 server:
+ *                   type: string
+ *                   example: express
+ *                 version:
+ *                   type: string
+ *                   example: 1.0.0.3
+ */
 // Server Framework Version Endpoint (Express version)
 app.get('/getNodeWebServerVersion', (req, res) => {
     // You can also read this dynamically from package.json if you want your app version instead
