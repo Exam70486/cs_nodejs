@@ -71,8 +71,8 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'https://ominous-space-robot-p97445gppvjfjwp-4000.app.github.dev',
-        description: 'Local development server',
+        url: 'https://cs-nodejs-latest-f7x5.onrender.com/',
+        description: 'render',
       },
     ],
   },
@@ -313,6 +313,30 @@ httpServer.listen(PORT, () => {
 //---------------------------------------------------
 // HEALTH ENDPOINT: Describes all available endpoints and system status
 //---------------------------------------------------
+
+/**
+ * @openapi
+ * /health:
+ *   get:
+ *     summary: Health check endpoint
+ *     description: Verifies that the Node.js web server and container dependencies are running correctly.
+ *     tags:
+ *       - System
+ *     responses:
+ *       200:
+ *         description: Server is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "UP"
+ *                 timestamp:
+ *                   type: string
+ *                   example: "2026-09-26T13:03:20Z"
+ */
 app.get("/health", (req, res) => {
   const healthInfo = {
     status: "UP",

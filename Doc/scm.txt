@@ -132,7 +132,7 @@ df -h . && du -h --max-depth=1 | sort -hr
 
 # publish in docker hub
 # https://hub.docker.com/
-    docker push apereznwogmail/cs_nodejs_ocr:latest
+    docker push apereznwogmail/cs_nodejs:latest
 
 # URL FOR RENDER : https://dashboard.render.com/
     docker.io/apereznwogmail/cs_nodejs:latest
