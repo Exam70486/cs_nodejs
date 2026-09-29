@@ -71,7 +71,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'https://cs-nodejs-latest-f7x5.onrender.com/',
+        url: 'https://cs-nodejs.onrender.com/',
         description: 'render',
       },
     ],
