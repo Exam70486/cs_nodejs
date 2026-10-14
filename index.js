@@ -60,6 +60,10 @@ app.use(
 // SWAGGER SETUP
 //---------------------------------------------------
 
+// Dynamically infer server URL: checks for Render's environment URL first,
+// otherwise falls back to localhost using your configured port variable.
+const inferredServerUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || portNumber}`;
+
 // 1. Configure Swagger definition options
 const swaggerOptions = {
   definition: {
@@ -71,13 +75,13 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'https://cs-nodejs-latest-6252.onrender.com/',
-        description: 'render',
+        url: inferredServerUrl,
+        description: process.env.RENDER_EXTERNAL_URL ? 'Render Production' : 'Local development server',
       },
     ],
   },
   // Points to files where Swagger JSDoc annotations are written (this file)
-  apis: ['./index.js'], 
+  apis: ['./index.js'],
 };
 
 const swaggerSpecs = swaggerJsdoc(swaggerOptions);
@@ -161,9 +165,13 @@ app.get("/tictactoe", (req, res) => {
 })();
 
 
-// NODE.JS VERSION 
+// NODE.JS VERSION
 app.get('/getNodeVersion', (req, res) => {
     res.send(process.version);
+});
+
+app.get('/getAppVersion', (req, res) => {
+    res.send("1.0.0");
 });
 
 /**
@@ -297,7 +305,7 @@ io.on("connection", (socket) => {
 
   socket.on("message", (msg) => {
     console.log("Message:", msg);
-    io.emit("message", msg); 
+    io.emit("message", msg);
   });
 
   socket.on("disconnect", () => {
@@ -355,6 +363,7 @@ app.get("/health", (req, res) => {
       { path: "/GenerarInformeCSVJson", method: "GET", description: "Returns generated CSV/JSON report data." },
       { path: "/generarinformejson", method: "GET", description: "Returns general JSON report output." },
       { path: "/Index", method: "GET", description: "Serves the index.html content." },
+      { path: "/getAppVersion", method: "GET", description: "Returns the application version." },
       { path: "/getNodeVersion", method: "GET", description: "Returns the active Node.js version." },
       { path: "/getNodeWebServerVersion", method: "GET", description: "Returns the active express version." },
       { path: "/SendEmail", method: "GET", description: "Triggers a test email notification." },
