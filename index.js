@@ -26,7 +26,7 @@ const require                          = createRequire(import.meta.url);
 //
 let appName    = "[WEB API / NODE.JS - DEMO]";
 //
-let appVersion = "1.0.0.3";
+let appVersion = "1.0.1";
 //
 let portNumber = 4000;
 //
@@ -43,6 +43,78 @@ const config = {
     trustServerCertificate: true,
   },
 };
+
+//---------------------------------------------------
+// ENDPOINTS DICTIONARY (Requirement a)
+//---------------------------------------------------
+const endpoints = {
+  ping: {
+    name: "Ping Check",
+    path: "/ping",
+    description: "Returns a zero KB (204 No Content) response for health checking."
+  },
+  health: {
+    name: "Health Check",
+    path: "/health",
+    description: "Describes system status and all available REST endpoints."
+  },
+  sudokuSolve: {
+    name: "Sudoku Solver",
+    path: "/Sudoku_Solve_NodeJS",
+    description: "Solves a Sudoku puzzle given via query parameter p_matrix."
+  },
+  sudokuGenerate: {
+    name: "Sudoku Generator",
+    path: "/Sudoku_Generate_NodeJS",
+    description: "Generates a new Sudoku puzzle."
+  },
+  tictactoe: {
+    name: "Tic Tac Toe Test",
+    path: "/tictactoe",
+    description: "Runs/tests Tic-Tac-Toe module logic."
+  },
+  databaseConnect: {
+    name: "Database Connect Report",
+    path: "/DatabaseConnect",
+    description: "Returns database report or connection status JSON."
+  },
+  generarInformeCSVJson: {
+    name: "CSV/JSON Report Generator",
+    path: "/GenerarInformeCSVJson",
+    description: "Returns generated CSV/JSON report data."
+  },
+  generarInformeJsonLower: {
+    name: "General JSON Report",
+    path: "/generarinformejson",
+    description: "Returns general JSON report output."
+  },
+  getAppVersion: {
+    name: "Application Version",
+    path: "/getAppVersion",
+    description: "Returns the application version."
+  },
+  getNodeVersion: {
+    name: "Node.js Version",
+    path: "/getNodeVersion",
+    description: "Returns the active Node.js version."
+  },
+  getNodeWebServerVersion: {
+    name: "Web Server Version",
+    path: "/getNodeWebServerVersion",
+    description: "Returns metadata reflecting the active express server and version from package.json"
+  },
+  sendEmail: {
+    name: "Send Email Notification",
+    path: "/SendEmail",
+    description: "Triggers a test email notification."
+  },
+  contact: {
+    name: "Contact Form Submission",
+    path: "/contact",
+    description: "Handles contact form submission, saves to SQL server, and emails confirmations."
+  }
+};
+
 //---------------------------------------------------
 // Handling GET requests for different endpoints
 //---------------------------------------------------
@@ -103,75 +175,63 @@ app.use((req, res, next) => {
 });
 
 //---------------------------------------------------
-// PING ENDPOINT: Returns zero kb data
+// RESTFUL ENDPOINTS (Mapped using endpoints dictionary - Requirement b)
 //---------------------------------------------------
-app.get("/ping", (req, res) => {
+
+app.get(endpoints.ping.path, (req, res) => {
   res.status(204).send(); // 204 No Content responds with zero bytes of data
 });
 
-app.get("/Sudoku_Solve_NodeJS", (req, res) => {
-  //
+app.get(endpoints.sudokuSolve.path, (req, res) => {
   const p_matrix = req.query.p_matrix;
   const result = SudokuSolve(p_matrix);
-  //
   console.log("SUDOKU_SOLVE_NODE_JS input  :  " + p_matrix);
   console.log("SUDOKU_SOLVE_NODE_JS output :  " + result);
-  //
   res.send(result);
 });
 
-app.get("/Sudoku_Generate_NodeJS", (req, res) => {
+app.get(endpoints.sudokuGenerate.path, (req, res) => {
   res.send(SudokuGenerate());
 });
 
-app.get("/tictactoe", (req, res) => {
+app.get(endpoints.tictactoe.path, (req, res) => {
   res.send(TicTacToeTest());
 });
 
 // DatabaseConnect
 (async () => {
-  //
   const result = await GenerarInformeCSVJson();
-  //
-  app.get("/DatabaseConnect", (req, res) => {
+  app.get(endpoints.databaseConnect.path, (req, res) => {
     res.send(result);
   });
-  //
   console.log(result);
 })();
 
 // GenerarInformeCSVJson
 (async () => {
-  //
   const result = await GenerarInformeCSVJson();
-  //
-  app.get("/GenerarInformeCSVJson", (req, res) => {
+  app.get(endpoints.generarInformeCSVJson.path, (req, res) => {
     res.send(result);
   });
-  //
   console.log(result);
 })();
 
 // generarinformejson
 (async () => {
-  //
   const result = await generarinformejson();
-  //
-  app.get("/generarinformejson", (req, res) => {
+  app.get(endpoints.generarInformeJsonLower.path, (req, res) => {
     res.send(result);
   });
-  //
   console.log(result);
 })();
 
-
 // NODE.JS VERSION
-app.get('/getNodeVersion', (req, res) => {
+app.get(endpoints.getNodeVersion.path, (req, res) => {
     res.send(process.version);
 });
 
-app.get('/getAppVersion', (req, res) => {
-    res.send("1.0.0");
+app.get(endpoints.getAppVersion.path, (req, res) => {
+    res.send(appVersion);
 });
 
 /**
@@ -196,17 +256,17 @@ app.get('/getAppVersion', (req, res) => {
  *                   example: 1.0.0.3
  */
 // Server Framework Version Endpoint (Express version)
-app.get('/getNodeWebServerVersion', (req, res) => {
-    // You can also read this dynamically from package.json if you want your app version instead
+app.get(endpoints.getNodeWebServerVersion.path, (req, res) => {
     res.json({
         server: 'Express / Node App',
         version: packageJson.version // Reads the version from your project's package.json
     });
 });
+
 /////////////////////////////////////////////////////////
 // SMTP ENDPOINT ROUTE
 /////////////////////////////////////////////////////////
-app.get("/SendEmail", (req, res) => {
+app.get(endpoints.sendEmail.path, (req, res) => {
   try {
     sendDynamicEmail(
       "alejandro.perez.acosta@gmail.com",
@@ -221,9 +281,8 @@ app.get("/SendEmail", (req, res) => {
   }
 });
 
-//
 // POST endpoint to handle form submission
-app.post("/contact", async (req, res) => {
+app.post(endpoints.contact.path, async (req, res) => {
   const { name, email, message } = req.body;
 
   try {
@@ -319,7 +378,7 @@ httpServer.listen(PORT, () => {
 });
 
 //---------------------------------------------------
-// HEALTH ENDPOINT: Describes all available endpoints and system status
+// HEALTH ENDPOINT (Requirement c)
 //---------------------------------------------------
 
 /**
@@ -337,38 +396,21 @@ httpServer.listen(PORT, () => {
  *           application/json:
  *             schema:
  *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "UP"
- *                 timestamp:
- *                   type: string
- *                   example: "2026-09-26T13:03:20Z"
  */
-app.get("/health", (req, res) => {
+app.get(endpoints.health.path, (req, res) => {
   const healthInfo = {
-    status: "UP",
-    appName: appName,
-    version: appVersion,
-    nodeVersion: process.version,
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-    endpoints: [
-      { path: "/ping", method: "GET", description: "Returns a zero KB (204 No Content) response for health checking." },
-      { path: "/health", method: "GET", description: "Describes system status and all available REST endpoints." },
-      { path: "/Sudoku_Solve_NodeJS", method: "GET", description: "Solves a Sudoku puzzle given via query parameter p_matrix." },
-      { path: "/Sudoku_Generate_NodeJS", method: "GET", description: "Generates a new Sudoku puzzle." },
-      { path: "/tictactoe", method: "GET", description: "Runs/tests Tic-Tac-Toe module logic." },
-      { path: "/DatabaseConnect", method: "GET", description: "Returns database report or connection status JSON." },
-      { path: "/GenerarInformeCSVJson", method: "GET", description: "Returns generated CSV/JSON report data." },
-      { path: "/generarinformejson", method: "GET", description: "Returns general JSON report output." },
-      { path: "/Index", method: "GET", description: "Serves the index.html content." },
-      { path: "/getAppVersion", method: "GET", description: "Returns the application version." },
-      { path: "/getNodeVersion", method: "GET", description: "Returns the active Node.js version." },
-      { path: "/getNodeWebServerVersion", method: "GET", description: "Returns the active express version." },
-      { path: "/SendEmail", method: "GET", description: "Triggers a test email notification." },
-      { path: "/contact", method: "POST", description: "Handles contact form submission, saves to SQL server, and emails confirmations." }
-    ]
+    // c.1) Server status message section
+    serverStatus: {
+      appName: appName,
+      version: appVersion,
+      note: "server working",
+      status: "UP",
+      nodeVersion: process.version,
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString()
+    },
+    // c.2) Endpoints dictionary section
+    endpoints: endpoints
   };
   res.status(200).json(healthInfo);
 });
@@ -379,7 +421,6 @@ app.get("/health", (req, res) => {
 //---------------------------------------------------
 //
 app.listen(portNumber, () => {
-  //
   console.log("[APPLICATION START]");
   console.log(" Application Name       : " + appName);
   console.log(" Application Version    : " + appVersion);
